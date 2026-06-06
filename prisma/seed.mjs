@@ -6,7 +6,14 @@ const hoursAgo = (hours) => new Date(Date.now() - hours * 60 * 60 * 1000);
 const daysAgo = (days) => hoursAgo(days * 24);
 
 async function main() {
-  await prisma.workspace.deleteMany({ where: { slug: "trustchat-demo" } });
+  const existingWorkspace = await prisma.workspace.findUnique({
+    where: { slug: "trustchat-demo" },
+    select: { id: true },
+  });
+  if (existingWorkspace) {
+    console.log("TrustChat demo data already exists; seed skipped.");
+    return;
+  }
 
   const passwordHash = await bcrypt.hash("TrustChat123!", 12);
   const workspace = await prisma.workspace.create({

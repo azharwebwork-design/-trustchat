@@ -10,6 +10,7 @@ npm install
 npm run prisma:generate
 npm run prisma:deploy
 npm run prisma:seed
+npm run prisma:verify
 npm run dev
 ```
 
@@ -30,3 +31,14 @@ npm run prisma:seed
 ```
 
 WhatsApp API integration is intentionally not included in this MVP.
+
+## Vercel production database
+
+Vercel uses the `vercel-build` script to apply committed Prisma migrations and
+idempotently create demo data before building:
+
+```bash
+prisma migrate deploy
+npm run prisma:seed
+next build
+```
