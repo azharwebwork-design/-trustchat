@@ -40,5 +40,6 @@ idempotently create demo data before building:
 ```bash
 prisma migrate deploy
 npm run prisma:seed
+npm run prisma:verify
 next build
 ```
