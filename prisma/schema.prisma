@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  AGENT
+}
+
+enum UserStatus {
+  ONLINE
+  BUSY
+  OFFLINE
+}
+
+enum ConversationStatus {
+  OPEN
+  PENDING
+  CLOSED
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  COMPLETED
+}
+
+model Workspace {
+  id            String         @id @default(cuid())
+  name          String
+  slug          String         @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  users         User[]
+  contacts      Contact[]
+  conversations Conversation[]
+  messages      Message[]
+  campaigns     Campaign[]
+}
+
+model User {
+  id                    String         @id @default(cuid())
+  workspaceId           String
+  name                  String
+  email                 String         @unique
+  passwordHash          String
+  role                  UserRole       @default(AGENT)
+  title                 String?
+  phone                 String?
+  status                UserStatus     @default(ONLINE)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  workspace             Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  assignedConversations Conversation[] @relation("AssignedAgent")
+  messages              Message[]      @relation("MessageSender")
+  sessions              Session[]
+
+  @@index([workspaceId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Contact {
+  id            String         @id @default(cuid())
+  workspaceId   String
+  name          String
+  email         String?
+  phone         String
+  tag           String?
+  initials      String
+  color         String         @default("bg-orange-500")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  conversations Conversation[]
+
+  @@unique([workspaceId, phone])
+  @@index([workspaceId, createdAt])
+}
+
+model Conversation {
+  id            String             @id @default(cuid())
+  workspaceId   String
+  contactId     String
+  assignedToId  String?
+  subject       String?
+  status        ConversationStatus @default(OPEN)
+  unreadCount   Int                @default(0)
+  lastMessageAt DateTime           @default(now())
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  workspace     Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contact       Contact            @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  assignedTo    User?              @relation("AssignedAgent", fields: [assignedToId], references: [id], onDelete: SetNull)
+  messages      Message[]
+
+  @@index([workspaceId, lastMessageAt])
+  @@index([contactId])
+  @@index([assignedToId])
+}
+
+model Message {
+  id             String           @id @default(cuid())
+  workspaceId    String
+  conversationId String
+  senderId       String?
+  content        String
+  direction      MessageDirection
+  readAt         DateTime?
+  createdAt      DateTime         @default(now())
+  workspace      Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  conversation   Conversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User?            @relation("MessageSender", fields: [senderId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, createdAt])
+  @@index([conversationId, createdAt])
+}
+
+model Campaign {
+  id            String         @id @default(cuid())
+  workspaceId   String
+  name          String
+  status        CampaignStatus @default(DRAFT)
+  audienceCount Int            @default(0)
+  sentCount     Int            @default(0)
+  readCount     Int            @default(0)
+  scheduledAt   DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}

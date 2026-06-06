@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: trustchat-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: trustchat
+      POSTGRES_USER: trustchat
+      POSTGRES_PASSWORD: trustchat
+    ports:
+      - "5434:5432"
+    volumes:
+      - trustchat_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trustchat -d trustchat"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  trustchat_postgres_data:
