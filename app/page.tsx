@@ -387,7 +387,7 @@ function DashboardMockup() {
           <main className="min-w-0 bg-[#faf7f4] p-4 dark:bg-[#15110f] sm:p-7">
             <div className="flex items-start justify-between">
               <div><span className="text-[8px] font-black tracking-wider text-[#dc743b]">TRUSTCHAT WORKSPACE</span><h2 className="mt-1 text-sm font-black sm:text-lg">صباح الخير، أحمد</h2><p className="mt-1 hidden text-[8px] text-[#9b8e86] sm:block">إليك ما يحدث في مساحة عملك اليوم.</p></div>
-              <button className="rounded-lg bg-[#e77b40] px-3 py-2 text-[8px] font-black text-white">+ محادثة جديدة</button>
+              <span className="rounded-lg bg-[#e77b40] px-3 py-2 text-[8px] font-black text-white">+ محادثة جديدة</span>
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
               {[

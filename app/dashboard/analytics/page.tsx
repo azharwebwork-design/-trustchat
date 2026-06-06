@@ -1,5 +1,6 @@
 import { CalendarDays, Clock3, Download, MessageCircleMore, Star, TrendingUp, UsersRound } from "lucide-react";
 import { Avatar, Card, PageTitle, StatCard } from "@/components/dashboard-ui";
+import { ComingSoonButton } from "@/components/coming-soon-button";
 import { formatNumber, getAnalyticsData } from "@/lib/dashboard";
 
 export const metadata = { title: "التحليلات" };
@@ -10,7 +11,7 @@ export default async function AnalyticsPage() {
   const {conversations,contacts,messages,team}=await getAnalyticsData();
   return (
     <div className="mx-auto max-w-[1500px]">
-      <PageTitle title="التحليلات والتقارير" description="افهم أداء فريقك وتجربة عملائك بوضوح." action={<div className="flex gap-2"><button className="flex items-center gap-2 rounded-xl border border-ui surface px-4 py-2.5 text-xs font-bold"><CalendarDays size={16} /> آخر 30 يوماً</button><button className="flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-xs font-bold text-white"><Download size={16} /> تصدير التقرير</button></div>} />
+      <PageTitle title="التحليلات والتقارير" description="افهم أداء فريقك وتجربة عملائك بوضوح." action={<div className="flex gap-2"><span className="flex items-center gap-2 rounded-xl border border-ui surface px-4 py-2.5 text-xs font-bold"><CalendarDays size={16} /> آخر 30 يوماً</span><ComingSoonButton className="flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-xs font-bold text-white"><Download size={16} /> تصدير التقرير</ComingSoonButton></div>} />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="إجمالي المحادثات" value={formatNumber(conversations)} change="+16.8%" icon={MessageCircleMore} />
         <StatCard label="عملاء تم خدمتهم" value={formatNumber(contacts)} change="+12.3%" icon={UsersRound} color="bg-blue-500/10 text-blue-500" />

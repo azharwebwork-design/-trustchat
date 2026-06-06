@@ -69,14 +69,34 @@ export async function getOverviewData() {
   };
 }
 
-export async function getContactsData() {
+export async function getContactsData(query = "", tag = "") {
   const user = await requireUser();
   const contacts = await prisma.contact.findMany({
-    where: { workspaceId: user.workspaceId },
+    where: {
+      workspaceId: user.workspaceId,
+      ...(query ? {
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { phone: { contains: query } },
+          { email: { contains: query, mode: "insensitive" } },
+        ],
+      } : {}),
+      ...(tag ? { tag } : {}),
+    },
     orderBy: { createdAt: "desc" },
   });
+  const [total, tags] = await Promise.all([
+    prisma.contact.count({ where: { workspaceId: user.workspaceId } }),
+    prisma.contact.findMany({
+      where: { workspaceId: user.workspaceId, tag: { not: null } },
+      distinct: ["tag"],
+      select: { tag: true },
+      orderBy: { tag: "asc" },
+    }),
+  ]);
   return {
-    total: contacts.length,
+    total,
+    tags: tags.flatMap((item) => item.tag ? [item.tag] : []),
     contacts: contacts.map((contact) => ({
       ...contact,
       tag: contact.tag ?? "بدون وسم",
@@ -86,10 +106,21 @@ export async function getContactsData() {
   };
 }
 
-export async function getConversationsData() {
+export async function getConversationsData(query = "", filter = "", selectedId = "") {
   const user = await requireUser();
   const conversations = await prisma.conversation.findMany({
-    where: { workspaceId: user.workspaceId },
+    where: {
+      workspaceId: user.workspaceId,
+      ...(query ? {
+        OR: [
+          { contact: { name: { contains: query, mode: "insensitive" } } },
+          { contact: { phone: { contains: query } } },
+          { messages: { some: { content: { contains: query, mode: "insensitive" } } } },
+        ],
+      } : {}),
+      ...(filter === "unread" ? { unreadCount: { gt: 0 } } : {}),
+      ...(filter === "mine" ? { assignedToId: user.id } : {}),
+    },
     orderBy: { lastMessageAt: "desc" },
     include: {
       contact: true,
@@ -98,7 +129,7 @@ export async function getConversationsData() {
     },
   });
 
-  return conversations.map((conversation) => ({
+  const mapped = conversations.map((conversation) => ({
     id: conversation.id,
     name: conversation.contact.name,
     phone: conversation.contact.phone,
@@ -117,12 +148,19 @@ export async function getConversationsData() {
       mine: message.direction === "OUTBOUND",
     })),
   }));
+  if (!selectedId) return mapped;
+  return [...mapped].sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId));
 }
 
-export async function getCampaignsData() {
+export async function getCampaignsData(status = "") {
   const user = await requireUser();
+  const allowedStatuses = ["DRAFT", "SCHEDULED", "SENDING", "COMPLETED"] as const;
+  const selectedStatus = allowedStatuses.find((item) => item === status);
   const campaigns = await prisma.campaign.findMany({
-    where: { workspaceId: user.workspaceId },
+    where: {
+      workspaceId: user.workspaceId,
+      ...(selectedStatus ? { status: selectedStatus } : {}),
+    },
     orderBy: { createdAt: "desc" },
   });
   return campaigns.map((campaign) => ({

@@ -81,7 +81,7 @@ export function AuthCard({ mode }: { mode: "login" | "register" | "forgot" }) {
               </label>
               {mode === "login" && (
                 <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center gap-2"><input type="checkbox" className="accent-brand" /> تذكرني</label>
+                  <label className="muted flex cursor-not-allowed items-center gap-2"><input type="checkbox" disabled className="accent-brand" /> تذكرني <small>قريبًا</small></label>
                   <Link href="/forgot-password" className="font-bold text-brand-dark dark:text-brand">نسيت كلمة المرور؟</Link>
                 </div>
               )}

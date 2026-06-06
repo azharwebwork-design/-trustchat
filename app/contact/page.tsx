@@ -1,6 +1,7 @@
 import { Mail, MapPin, Phone } from "lucide-react";
 import { MarketingShell } from "@/components/marketing-shell";
 import { SectionHeading } from "@/components/section-heading";
+import { ComingSoonButton } from "@/components/coming-soon-button";
 export const metadata = { title: "تواصل معنا" };
 export default function ContactPage() {
   return <MarketingShell>
@@ -12,7 +13,7 @@ export default function ContactPage() {
       <form className="rounded-[2rem] border border-ui surface p-7 shadow-soft md:p-9">
         <div className="grid gap-5 sm:grid-cols-2"><Field label="الاسم الكامل" placeholder="اكتب اسمك"/><Field label="البريد الإلكتروني" placeholder="name@company.com" type="email"/><Field label="اسم الشركة" placeholder="اسم شركتك"/><Field label="رقم الجوال" placeholder="+966 5X XXX XXXX"/></div>
         <label className="mt-5 block text-sm font-bold">كيف يمكننا مساعدتك؟<textarea rows={5} placeholder="حدثنا عن احتياجك..." className="mt-2 w-full resize-none rounded-xl border border-ui bg-transparent px-4 py-3 outline-none focus:border-brand"/></label>
-        <button className="mt-5 w-full rounded-xl bg-brand py-3.5 font-bold text-white hover:bg-brand-dark">إرسال الرسالة</button>
+        <ComingSoonButton className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3.5 font-bold text-white">إرسال الرسالة</ComingSoonButton>
       </form>
     </section>
   </MarketingShell>;
